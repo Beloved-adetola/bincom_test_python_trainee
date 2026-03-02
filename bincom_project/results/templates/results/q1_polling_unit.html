@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Q1 - Polling Unit Results</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial;margin:24px;max-width:980px}
+    table{border-collapse:collapse;width:420px}
+    td,th{border:1px solid #ddd;padding:8px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:16px;margin-top:12px}
+  </style>
+</head>
+<body>
+  <a href="/">← Home</a>
+  <h2>Q1: Polling Unit Results (Delta only)</h2>
+
+  <div class="card">
+    <form method="get">
+      <label><b>Select Polling Unit</b></label><br/>
+      <select name="pu" onchange="this.form.submit()" style="min-width:420px;padding:8px">
+        <option value="">-- choose --</option>
+        {% for pu in polling_units %}
+          <option value="{{ pu.uniqueid }}" {% if selected_pu == pu.uniqueid|stringformat:"s" %}selected{% endif %}>
+            {{ pu.polling_unit_name }} (ID: {{ pu.uniqueid }})
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if selected_pu %}
+    <div class="card">
+      <h3>Results</h3>
+      {% if pu_results %}
+        <table>
+          <tr><th>Party</th><th>Score</th></tr>
+          {% for r in pu_results %}
+            <tr><td>{{ r.party_abbreviation }}</td><td>{{ r.party_score }}</td></tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <p>No results found for this polling unit.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Q2 - LGA Summed Results</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial;margin:24px;max-width:980px}
+    table{border-collapse:collapse;width:520px}
+    td,th{border:1px solid #ddd;padding:8px}
+    .row{display:flex;gap:28px;flex-wrap:wrap;margin-top:12px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:16px}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+  <a href="/">← Home</a>
+  <h2>Q2: Summed Results by LGA</h2>
+
+  <div class="card">
+    <form method="get">
+      <label><b>Select LGA</b></label><br/>
+      <select name="lga" onchange="this.form.submit()" style="min-width:420px;padding:8px">
+        <option value="">-- choose --</option>
+        {% for lga in lgas %}
+          <option value="{{ lga.lga_id }}" {% if selected_lga == lga.lga_id|stringformat:"s" %}selected{% endif %}>
+            {{ lga.lga_name }}
+          </option>
+        {% endfor %}
+      </select>
+      <p class="muted">Totals are computed from polling-unit results (NOT announced LGA table).</p>
+    </form>
+  </div>
+
+  {% if selected_lga %}
+    <div class="row">
+      <div class="card">
+        <h3>Computed Totals</h3>
+        {% if summed %}
+          <table>
+            <tr><th>Party</th><th>Total Score</th></tr>
+            {% for r in summed %}
+              <tr><td>{{ r.party_abbreviation }}</td><td>{{ r.total_score }}</td></tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p>No polling-unit results found for this LGA.</p>
+        {% endif %}
+      </div>
+
+      {% if announced %}
+        <div class="card">
+          <h3>Announced LGA Results <span class="muted">(comparison only)</span></h3>
+          <table>
+            <tr><th>Party</th><th>Announced Score</th></tr>
+            {% for r in announced %}
+              <tr><td>{{ r.party_abbreviation }}</td><td>{{ r.party_score }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Q3 - New Polling Unit</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial;margin:24px;max-width:980px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0}
+    input,select{padding:8px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .ok{color:green}
+    .bad{color:#c00}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+  <a href="/">← Home</a>
+  <h2>Q3: Add New Polling Unit + Party Results</h2>
+
+  {% if success %}
+    <p class="ok"><b>Saved successfully ✅</b></p>
+  {% endif %}
+  {% if error %}
+    <p class="bad"><b>Error:</b> {{ error }}</p>
+  {% endif %}
+
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      <label><b>Polling Unit Name</b></label><br/>
+      <input type="text" name="polling_unit_name" required style="min-width:420px"/>
+
+      <div style="height:12px"></div>
+
+      <label><b>LGA</b></label><br/>
+      <select name="lga_id" id="lga" required style="min-width:420px">
+        <option value="">-- choose --</option>
+        {% for lga in lgas %}
+          <option value="{{ lga.lga_id }}">{{ lga.lga_name }}</option>
+        {% endfor %}
+      </select>
+
+      <div style="height:12px"></div>
+
+      <label><b>Ward</b></label><br/>
+      <select name="ward_id" id="ward" required style="min-width:420px">
+        <option value="">-- choose LGA first --</option>
+      </select>
+
+      <hr/>
+      <h3>Party Scores</h3>
+      <p class="muted">Blank fields are ignored.</p>
+
+      <div class="grid">
+        {% for p in parties %}
+          <div>
+            <label>{{ p }}</label><br/>
+            <input type="number" name="party_score_{{ p }}" min="0" />
+          </div>
+        {% endfor %}
+      </div>
+
+      <div style="height:14px"></div>
+      <button type="submit" style="padding:10px 14px">Save Results</button>
+    </form>
+  </div>
+
+  <script>
+    const lgaSelect = document.getElementById("lga");
+    const wardSelect = document.getElementById("ward");
+
+    lgaSelect.addEventListener("change", async () => {
+      const lgaId = lgaSelect.value;
+      wardSelect.innerHTML = `<option value="">Loading...</option>`;
+      if(!lgaId){
+        wardSelect.innerHTML = `<option value="">-- choose LGA first --</option>`;
+        return;
+      }
+      const res = await fetch(`/api/wards/?lga_id=${encodeURIComponent(lgaId)}`);
+      const data = await res.json();
+      wardSelect.innerHTML = `<option value="">-- choose --</option>`;
+      data.wards.forEach(w => {
+        wardSelect.innerHTML += `<option value="${w.id}">${w.name}</option>`;
+      });
+    });
+  </script>
+</body>
+</html>
